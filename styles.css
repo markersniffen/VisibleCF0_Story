@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: black;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#header {
+  background-color: #222222;
+  padding: 20px;
+
+  font-size: 1.5em;
+}
+
+#container {
+  margin: 0 auto;
+  max-width: 800px;
+  height: 400px;
+}
+
+
+.largeText {
+  text-align: center;
+  text-anchor: middle;
+  alignment-baseline: central;
+
+  font-size: 1.5em;
+  fill: white;
+}
