@@ -1,17 +1,8 @@
 
-function particleGen(w, h, count) { 
-  let particles = [];
-  for (i=0; i<count; i++) {
-    particles.push( { x: Math.random()*width, y: Math.random()*height, r: Math.random()/.7 + 1 } )
-  }
-  return particles
-}
-
 function getRandomOffset(d) {
   return d + Math.random() * 10;
 }
-
-function board1(id) {
+function board1(id, data) {
 
   const svg = d3.select(`#${id}`);
 
@@ -46,8 +37,6 @@ let layers = center.selectAll('.layer').data(['0', '1'])
 let bg = svg.select('#l0')
 let l1 = svg.select('#l1')
 
-
-
 // welcome animation
 
 // add circle
@@ -55,6 +44,7 @@ l1.selectAll('.circle').data([null])
   .join(
     enter => enter
     .append('circle')
+    .attr('class', 'circle')
     .attr('r', 40)
     .style('fill-opacity', 0)
     .call(
@@ -65,9 +55,6 @@ l1.selectAll('.circle').data([null])
       .style('fill', 'steelblue')
       )
   )
-  
-
-
 // add welcome text
 
 l1.selectAll('.largeText').data(['Welcome!'])
@@ -80,7 +67,7 @@ l1.selectAll('.largeText').data(['Welcome!'])
     .attr('y', 10)
     .call(
       enter => enter
-      .transition(t6)
+      .transition(t2)
       .delay(400)
       .style('fill-opacity', 1)
       .style('fill', 'white')
@@ -88,9 +75,10 @@ l1.selectAll('.largeText').data(['Welcome!'])
       )
   )
 
-// add particles
+console.log('data length: ', data.length)
 
-let particles = pad.selectAll('.particles1').data(particleGen(width, height, 100))
+// add particles
+let particles = pad.selectAll('.particles1').data(data)
   .join(
     enter => enter
     .append('circle')
@@ -100,24 +88,45 @@ let particles = pad.selectAll('.particles1').data(particleGen(width, height, 100
     .attr('transform', d => `translate(${d.x},${d.y})`)
     .call(
       enter => enter
-      .transition(t8)
-      .delay(200)
+      .transition(t4)
       .attr('r', d => d.r)
       .style('fill-opacity', 1)
       .style('fill', 'white')
+      ),
+    update => update,
+    exit => exit
+      .call(exit => exit
+        .transition(t4)
+        .style('fill-opacity', 0)
+        .attr('r', 10)
+        .remove()
       )
-  )
+    )
 
-console.log(particles)
-}
+  if (state === 0) {
 
-function updateBoard1() {
+    // calculate particle positions
+    data.forEach(d => {
+      d.x += d.xVel;
+      d.y += d.yVel;
+      d.xVel += (Math.random() - 0.5) * .05 + ((d.xAcc - d.x) * Math.random() * .0001);
+      d.yVel += (Math.random() - 0.5) * .05 + ((d.yAcc - d.y) * Math.random() * .0001);
+    })
 
-  console.log('updating!!')
+    particles.attr('transform', d => `translate(${d.x},${d.y})`)
 
-  let particles = d3.selectAll('.particles1')
-  particles.forEach(d => {
-    .style('fill', 'red')
+  } else if (state === 1) {
+    particles.transition(t4)
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .on('end', (d,i) => {
+        if (i === data.length-1) { clicker() };
+      })
+  } else {
+    particles.transition(t4)
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .on('end', (d,i) => {
+        if (i === data.length-1) { resetState() };
+      })
   }
 }
 

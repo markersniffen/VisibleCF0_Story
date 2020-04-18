@@ -1,4 +1,8 @@
 
+//
+let state = 0;
+
+
 // get main DIV
 const container = d3.select('#container');
 
@@ -7,8 +11,16 @@ let height = container._groups[0][0].offsetHeight;
 let width = container._groups[0][0].offsetWidth;
 console.log(width, height)
 
-function update() {
 
+d_particle1.forEach(d => { 
+  d.x = Math.random() * width; 
+  d.y = Math.random() * height;
+  d.xAcc = d.x;
+  d.yAcc = d.y;
+   })
+
+
+function render() {
 
 // add main SVG
 svg = container.selectAll('#svg').data([null])
@@ -23,16 +35,51 @@ svg = container.selectAll('#svg').data([null])
     update => update
     .attr('viewbox', `0 0 ${width} ${height}`)
   )
-
-
-  board1('svg');
-
- 
+  if (state > 1) {
+    board1('svg', d_particle2);
+  } else {
+    board1('svg', d_particle1);
+  }
 }
 
-update();
+function resetState() {
+  state = 0;
+  myTimer.restart(timer);
+}
 
-d3.timer(updateBoard1)
+myScaleX = d3.scaleLinear().domain([0, 400]).range([-100, 100])
+myScaleY = d3.scaleLinear().domain([0, 400]).range([100, -100])
 
-window.addEventListener('resize', update);
+function clicker() {
+  d_particle2 = d3.range(Math.floor(400)).map((i) => {
+    return {
+      x: 130 * Math.cos(i) + 400,
+      y: 130 * Math.sin(i) + 200,
+      r: 1
+    }
+  })
+
+  if (state === 0) { 
+    myTimer.stop()
+    state = 1; 
+    board1('svg', d_particle2);
+  } else if (state === 1) {
+    state = 2;
+  } else if (state === 2) {
+    board1('svg', d_particle1)
+  }
+  console.log(state)
+}
+
+function timer() {
+    board1('svg', d_particle1)
+}
+
+render();
+
+let myTimer = d3.timer(timer)
+console.log(myTimer)
+
+window.addEventListener('resize', render);
+
 
